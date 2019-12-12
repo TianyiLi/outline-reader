@@ -6,6 +6,7 @@
 // @version     1.03
 // @author      TianyiLi-e0991100238@gmail.com
 // @description Get Readme file outline at github
+// @homepageURL https://github.com/TianyiLi/outline-reader
 // @description:zh-TW Github outline 懸浮視窗
 // ==/UserScript==
 if (document.querySelector('#readme article')) {
