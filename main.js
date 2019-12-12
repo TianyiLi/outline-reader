@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://github.com/*
 // @grant       none
-// @version     1.02
+// @version     1.03
 // @author      TianyiLi-e0991100238@gmail.com
 // @description Get Readme file outline at github
 // @description:zh-TW Github outline 懸浮視窗
@@ -20,6 +20,7 @@ if (document.querySelector('#readme article')) {
     border: solid 1px #e0e0e0;
     overflow-y: auto;
     max-height: 60vh;
+    z-index: 999;
 `
   const markdownDOM = document.querySelector('#readme article')
   function recursiveNodeReader(node) {
