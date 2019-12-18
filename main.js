@@ -20,6 +20,7 @@ if (document.querySelector('#readme article')) {
     background: white;
     border: solid 1px #e0e0e0;
     overflow-y: auto;
+    font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
     max-height: 60vh;
     z-index: 999;
 `
@@ -44,10 +45,10 @@ if (document.querySelector('#readme article')) {
   function renderDOM(domTree) {
     return domTree
       .map(
-        node =>
+        (node, i) =>
           `<a style="display:block" href="${node.link}" level="${node.level}">${
-            node.level > 1 ? '&nbsp;'.repeat(node.level - 2) + '└' : '─'
-          }${node.text}</a>`
+            '|&nbsp;&nbsp;'.repeat(node.level - 2 > 0 ? node.level - 2 : 0) + (domTree[i+1] ? (domTree[i+1].level > node.level ? '└' : '├') : '└') + '--'
+          }&nbsp;${node.text}</a>`
       )
       .join('')
   }
