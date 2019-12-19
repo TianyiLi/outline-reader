@@ -3,15 +3,14 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://github.com/*
 // @grant       none
-// @version     1.03
+// @version     1.04
 // @author      TianyiLi-e0991100238@gmail.com
 // @description Get Readme file outline at github
-// @homepageURL https://github.com/TianyiLi/outline-reader
 // @description:zh-TW Github outline 懸浮視窗
 // ==/UserScript==
 if (document.querySelector('#readme article')) {
-  const canvas = document.createElement('div')
-  canvas.style = `
+  const styles = /*css*/`
+  .outline-reader__ctn {
     position: fixed;
     top: 10vh;
     right: 8vw;
@@ -22,8 +21,30 @@ if (document.querySelector('#readme article')) {
     overflow-y: auto;
     font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
     max-height: 60vh;
-    z-index: 999;
-`
+  }
+  .outline-reader__ctn .head {
+    padding: .5rem .7rem;
+    font-size: 2rem;
+    position: sticky;
+    top: 0px;
+    background: white;
+    border-bottom: solid black 1px;
+  }
+  .outline-reader__ctn .body {
+    padding: .8rem .3rem;
+  }
+  .outline-reader__ctn a.link {
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow-x: hidden;
+  }
+  `
+  const styleHeads = document.createElement('style')
+  styleHeads.innerHTML = styles
+  document.querySelector('head').appendChild(styleHeads)
+  const canvas = document.createElement('div')
+  canvas.classList.add('outline-reader__ctn')
   const markdownDOM = document.querySelector('#readme article')
   function recursiveNodeReader(node) {
     let nodes = [...node.querySelectorAll('h1, h2, h3, h4, h5')]
@@ -46,26 +67,25 @@ if (document.querySelector('#readme article')) {
     return domTree
       .map(
         (node, i) =>
-          `<a style="display:block" href="${node.link}" level="${node.level}">${
-            '|&nbsp;&nbsp;'.repeat(node.level - 2 > 0 ? node.level - 2 : 0) + (domTree[i+1] ? (domTree[i+1].level > node.level ? '└' : '├') : '└') + '--'
-          }&nbsp;${node.text}</a>`
+          `<a class="link" style="display:block" title="${node.text}" href="${
+            node.link
+          }" level="${node.level}">${'│&nbsp;&nbsp;'.repeat(
+            node.level - 2 > 0 ? node.level - 2 : 0
+          ) +
+            (domTree[i + 1]
+              ? domTree[i + 1].level < node.level
+                ? '└'
+                : '├'
+              : '└') +
+            '─'} ${node.text}</a>`
       )
       .join('')
   }
   const body = document.createElement('div')
   const header = document.createElement('div')
   header.textContent = 'Outline'
-  header.style = `
-    padding: .5rem .7rem;
-    font-size: 2rem;
-    position: sticky;
-    top: 0px;
-    background: white;
-  `
-
-  body.style = `
-    padding: .2rem .3rem;
-  `
+  header.classList.add('head')
+  body.classList.add('body')
 
   body.addEventListener('mousedown', e => e.stopPropagation(), {
     capture: true,
@@ -83,23 +103,17 @@ if (document.querySelector('#readme article')) {
     target.style.left = e.clientX - position.x + 'px'
     target.style.right = ''
   }
-  canvas.addEventListener(
-    'mousedown',
-    function(e) {
-      isMove = true
-      position.x = e.offsetX
-      position.y = e.offsetY
-      target = this
-      window.addEventListener('mousemove', eleMove, true)
-    }
-  )
-  canvas.addEventListener(
-    'mouseup',
-    () => {
-      isMove = false
-      window.removeEventListener('mousemove', eleMove, true)
-    }
-  )
+  canvas.addEventListener('mousedown', function(e) {
+    isMove = true
+    position.x = e.offsetX
+    position.y = e.offsetY
+    target = this
+    window.addEventListener('mousemove', eleMove, true)
+  })
+  canvas.addEventListener('mouseup', () => {
+    isMove = false
+    window.removeEventListener('mousemove', eleMove, true)
+  })
 
   body.innerHTML = renderDOM(recursiveNodeReader(markdownDOM))
   canvas.appendChild(header)
